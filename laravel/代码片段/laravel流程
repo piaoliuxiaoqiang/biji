@@ -1,0 +1,255 @@
+Laravel项目流程
+1.项目需求 xmind画思维导图
+
+2.检查扩展是否开启  phpinfo();打印一下
+    PHP >= 7.0.0
+    OpenSSL PHP Extension
+    PDO PHP Extension
+    Mbstring PHP Extension
+    Tokenizer PHP Extension
+    XML PHP Extension
+
+3.下载 composer配置中国镜像并 下载laravel 
+    composer create-project --prefer-dist laravel/laravel blog
+
+4.配置laravel 
+    连接数据库、输出调试、修改时区 'timezone' => 'PRC'  'locale' => 'zh', (当地语言)
+    apache2开启重写、/etc/apache2目录下有几个需要配置的文件和目录
+        sudo a2enmod rewrite
+        sudo vim /etc/apache2/sites-enabled/000-default  
+        将AllowOverride None 修改为 AllowOverride All，如果没有看到这项内容，可以修改apache2.conf配置文件
+        sudo vim /etc/apache2/apache2.conf
+        :%s/AllowOverride None/AllowOverride All //将其中的AllowOverride None 全部替换为 AllowOverride All
+    修改文件权限: storage vendor
+
+5.数据库设计（建模 和使用laravel migrations数据库迁移）
+    public function up(){
+      Schema::create('users', function (Blueprint $table) {
+      $table->increments('id');   //自增ID
+      $table->string('name');     //字符创字段，string('name'，100) 第二个参数是长度限制
+      $table->string('email')->unique();  //唯一
+      $table->text('content');    //text是没有长度的
+      $table->string('password');
+      $table->integer('age')->nullable();     //int 型 可空
+      $table->boolean('active')->default(1);  //布尔值 默认为1及为真
+      $table->integer('role_id')->unsigned(); //int 无符号 
+      $table->rememberToken();   //实现登录记住我功能
+      $table->timestamps();}     //创建laravel维护时间字段
+  );}
+
+6.建立git仓库同步到github上
+      git status 查看本地修改状态
+      git add .　提交本地修改　git commit -m "内容"　提交修改内容
+　　　git status  再次查看是否有修改
+      git remote add origin https://github.com/piaoliuxiaoqiang/blog.git  本地https关联
+      git push -u origin master  推送本地分支到远程
+      git push origin master 然后只要本地提交了 就可以直接使用了
+
+7.功能模块开发（核心到周边）
+      首先创建首个模块的路由 例文章模块的 列表-详情-添加（保存）-修改（更新）-删除
+      然后创建渲染模板
+
+8.单个模块开发--migrations数据库创建数据 填充数据
+     表明posts //建议使用复数形式，同时可以路由模型绑定
+     外键user_id //名词+下划线ID  比如users表的主键为ID
+     时间 created_at/updated_at
+     php artisan make:migration create_posts(表名)_table  //创建migration表 并且设计表字段
+     php artisan migrate //执行migration创建表字段
+
+9.单个模块开发--功能开发
+     创建模块路由，创建控制器，创建模型文件 
+      php artisan list 或者 php artisan 查看artisan所有命令
+    　php artisan make:controller StudentController //创建控制器
+    　php artisan make:model StudentModel //创建模型
+    　php artisan make:middleware Activity //创建中间件
+    
+    控制和模板传递数据建议使用compact（）函数
+    例： return view(‘student’,[‘students’=>”$students”]);等价于
+     return view(‘student’，compact(‘students’));
+     同时如果有其他参数需要传递 如$posts
+     return view(‘student’,compact(‘students’,’posts’))
+
+10,注意时间转换格式 在模板里面做 毕竟是一个视图问题
+    laravel的时间是引用的carbon库  及 created_at 取出来的数据是carbon的对象 例子
+    $post->created_at->toDateString()
+     
+11，数据填充 字符截断  分页
+     laravel 数据填充使用的是 https://github.com/fzaninotto/Faker 模块
+    数据填充  首先进入database/factories/UserFactory.php 创建一个针对某个模型的工厂类 创建填充数据的格式
+             然后进入php artisan tinker 中 factory(App\Post::class,条数)->create()
+            
+    字符截断  {{str_limit($post->content,"100","...")}}  //参数1 显示的内容 参数2 截取长度 参数三 超出显示的内容
+    分页     首先在模型中取数据 $posts=Post::orderBy('created_at','desc')->get(); 把get 换成paginate（5）
+            显示时候 用{{$posts->links()}}
+
+12,文章详情页采用的是 路由数据绑定
+       
+    //文章详情页面 绑定模型posts 
+    Route::get('/posts/{post}','PostController@show');
+    控制器  public function show(Post $post){
+                return view("post.show",compact('post')); }
+    视图中链接  {{url('posts')}}/{{$post->id}}
+
+    非绑定
+    路由 Route::any('student/update/{id}','StudentController@update');
+    控制器    public function update($id){
+                $student=StudentModel::find($id);
+                return view('student.update',['student'=>$student]);
+            }
+    视图中链接      <a href="{{url('student/update',['$id'=>$student->id])}}">修改</a>
+            <a href="{{ url('student/delete', ['id' => $student->id]) }}"
+            onclick="if (confirm('确定要删除吗？') == false) return false;">删除</a>
+
+13， 表单提交
+    
+    尽量做到传递过来的参数名与数据库中的参数名 保持一致 这样语义一致 然后写代码和验证逻辑比较方便
+    
+    post请求需要验证csrf,所以要在表单里 加个隐藏域  
+    <input type="hidden" name="_token"   value="{{ csrf_token() }}"/>
+    不然就会报错：TokenMismatchException in VerifyCsrfToken.php line 68:  
+    或者{{csrf_field()}} 会生成一个隐藏的表单
+    
+    表单提交三步走---验证---逻辑---渲染模板
+
+14  富文本编辑器
+
+    增加富文本编辑器wangEditor2 富文本编辑器提交过去的是一段html的代码 所以前段显示时 需要增加{!! !!}不转意
+    及 {!! str_limit($post->content,"100","...") !!}
+
+    wangEditor2 配置图片的问题：
+    首先因为图片提交也是表单提交所以更具laravel需要 有token 请求需要验证csrf
+    可以通过设置 X-CSRF-Token 请求头来实现验证，VerifyCsrfToken 中间件会检查 X-CSRF-TOKEN 请求头
+    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    然后在 js 库（如 jQuery）中添加该令牌到所有请求头，这为基于 AJAX 的应用提供了简单、方便的方式来避免 CSRF 攻击：
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+     
+    在wangEditor2中 模板页面中 添加 <meta name="csrf-token" content="{{ csrf_token() }}">
+    javascript中配置：
+    editor.config.uploadImgUrl = 'posts/image/upload';
+    
+    editor.config.uploadHeaders = {
+        'X-CSRF-TOKEN':$('meta[name="csrf-token"]').attr('content')
+    };
+
+15、文章编辑逻辑实现
+           //put路由
+                Route::put('/', function () {return view('welcome');});
+                <from action=“/post” method=”POST”>
+                    <input type=”hidden” name=”_method” value=”PUT” />
+                    //{{method_field(‘PUT’)}} //隐藏才能命中PUT路由
+                </from>
+16、删除文章操作
+
+第二部分
+
+用户模块
+
+注册
+    1、laravel验证唯一规则            unique:表名，字段名
+    2、验证密码与确认密码是否一致的规则  
+        首先秘密传递过来的 name="password" 则确认密码必须为name="password_confirmed" 
+        例如，如果验证字段是 password，必须输入一个与之匹配的password_confirmation 字段。
+        则验证规则例： password' => 'required|confirmed
+    3、密码加密问题
+    传递过来的密码password 为明码传递 laravel为我们提供了加密方式 bcrypt()
+    $user->password=bcrypt($request->input('password'));
+
+登录 auth门脸类
+    要使用Auth门脸类 必须相关数据模型继承 
+    use Illuminate\Foundation\Auth\User as Authenticatable;
+    class User extends Authenticatable{}
+    1、登录
+        if (Auth::attrmpt(['email'=>$email,'password'=>$password],$rwmember)){
+            //这个用户别记住了
+        }
+    2、登出 Auth::logout();
+    3、获取当前已通过认证的用户 $user=Auth::user();
+    4、获取当前已通过认证的用户ID $id=Auth::id();
+
+在文章中显示用户信息
+    1、表关联 首先文章表关联用户表 用反向关联 在post模型中加入
+        //关联用户
+        public function user(){
+            return $this->belongsTo('App\User','user_id','id');
+            //参数为要关联的模型，外键（post表中的外键），主键
+        }
+    2、模板中调用显示
+    {{$post->user->email}} //显示用户关联user表中 邮箱信息
+
+文章权限控制
+        1、定义策略类 php artisn make:policy PostPolicty (会在app\Http下生成Policies\PostPolicy.php文件)
+        2、注册策略类、模型关联
+        首先打开PostPolicty文件自定义权限策略条件 如
+        use App\User;
+        use APP\Post;
+        //自定义更新权限
+        public function update(User $user,Post $post){
+                return $user->id==$post->user_id;}
+        然后在/app/Providers/AuthServiceProvider.php 中关联模块 如下：
+        protected $policies = [
+                //'App\Model' => 'App\Policies\ModelPolicy',
+                'App\Post' => 'App\Policies\PostPolicy', ];
+        到此模块关联注册了权限
+3、策略判断 使用权限
+        控制器中权限判断 $this->authorize('update',$post);
+        或者 if ($user->can('update',$post)){}
+        模板中 @can('update',$post)
+                //当前用户可更新
+            @elsecan('creat',$post)
+                //当前用户可新建
+            @endcan
+
+第三部分 评论模块
+表设计 ==> 模型建立 ==> 模型关联 ==> 页面搭建 ==> 路由设计 ==> 控制器业务建立 ==>业务逻辑
+ 
+    1、表设计 使用migrations数据库迁移  
+    php artisan make:migration create_posts(表名)_table  //创建migration表 并且设计表字段
+    php artisan migrate //执行migration创建表字段
+
+    2、模型建立与模型关联
+        public function user(){
+            return $this->belongsTo('App\User','user_id','id');
+            //参数为要关联的模型，外键（post表中的外键），主键}
+        
+        一对一     hasOne            (用户-手机号)
+        一对多     hasMany           (文章-评论)
+        一对多反向  belongsTo        (评论-文章)
+        多对多     belongsToMany     (用户-角色)
+        远程一对多  hasManyThrough   (国家-作者-文章)
+        多态关联    morphMany        (文章\视频-评论)
+        多态多对多  morphToMany      （文章\视频-标签）
+
+    3、页面搭建与模型设计
+    预加载 在控制器中
+        当通过属性访问 Eloquent 关联时，该关联数据会被「延迟加载」。意味着该关联数据只有在你使用属性访问它时才会被加载。
+        不过，Eloquent 可以在你查找上层模型时「预加载」关联数据。预加载避免了 N + 1 查找的问题。
+        要说明 N + 1 查找的问题， 例 评论（comment）关联 文章（post） 模型，的预加载
+        $post=App\Book::with('comment')-get();
+    延迟预加载 在控制器中
+        $post->load('comment'); 如果不预加载 下面代码则实际做了一次数据查询 不利于优化
+    模板中调用关联数据
+        @foreach($post->comment as $comment)
+            <h4 class="media-heading">{{$comment->user->name}}  <span>{{$comment->created_at}}</span></h4>
+            {{$comment->content}}
+         @endforeach
+
+    关联数据计数
+        可以使用 withCount 方法 
+        例子 $posts=Post::orderBy('created_at','desc')->WithCount('comment')->paginate(10);
+        视图中 用 $post->comment_counts 来显示
+
+点赞模块
+
+       
+
+
+
+
+
+
