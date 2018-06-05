@@ -44,6 +44,8 @@ Laravel项目流程
       git remote add origin https://github.com/piaoliuxiaoqiang/blog.git  本地https关联
       git push -u origin master  推送本地分支到远程
       git push origin master 然后只要本地提交了 就可以直接使用了
+      git remote -v 看远程仓库个数
+      git push origin master -f会强制推送，把与多于本地的commit 都会删除掉
 
 7.功能模块开发（核心到周边）
       首先创建首个模块的路由 例文章模块的 列表-详情-添加（保存）-修改（更新）-删除

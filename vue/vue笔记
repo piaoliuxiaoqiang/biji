@@ -1,5 +1,19 @@
 一、基础
-１．实例
+１．实例 (一个简单的)todolist案例）
+<div id="app">{{content}}</div>
+var app = new Vue ({
+    el:'#app',
+    data: {
+        content:hello world",
+        list: []
+    }
+    setTimeout(function() {
+        app.$data.content = 'good bye' //两秒以后数据改变
+    }, 2000)
+})
+
+
+
 ２．生命周期钩子
 ３．vue模板语法
 ４计算属性、方法和侦听器
@@ -23,3 +37,21 @@
 １．css动画（Animate.css）
 ２．js动画(VeLocity.js)
 
+四实战案例
+１．环境搭建
+２．git使用
+３．数据模拟
+４．本地开发
+５．联调
+６．真机测试
+７．上线
+
+五插件
+1.vue route
+2.vuex
+3.stylus
+4.Axios
+5.异步组件
+6.递归组件
+7.公用组件
+8.插件
