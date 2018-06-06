@@ -1,30 +1,117 @@
 一、基础
-１．实例 (一个简单的)todolist案例）
+１．实例 (参看todolist案例)
 <div id="app">{{content}}</div>
 var app = new Vue ({
     el:'#app',
     data: {
         content:hello world",
         list: []
-    }
+    },
     setTimeout(function() {
         app.$data.content = 'good bye' //两秒以后数据改变
     }, 2000)
 })
-
-
+console.log();
 
 ２．生命周期钩子
-３．vue模板语法
-４计算属性、方法和侦听器
-５计算属性中的ｓetter\getter
-6vue中的样式绑定
-７vue中的条件渲染
-８vue中的列表喧嚷
-９vue中的set方法
+    beforeCrete　基础初始化之后
+    created     外部注册和双向绑定之后
+    beforeMount　模板和数据结合之前页面渲染之前
+    mounted     页面渲染之后
+    bedoreUpdate　　当数据发生改变之前
+    updated        当数据发生改变之后
+    activated       keep-alive 组件激活时调用 该钩子在服务器端渲染期间不被调用
+    deactivated     keep-alive 组件停用时调用 该钩子在服务器端渲染期间不被调用
+    beforeDestroy   当调用destroy销毁之前
+    destroyed       当调用destroy销毁之后
+    errorCaptured   当捕获一个来自子孙组件的错误时被调用。
+    此钩子会收到三个参数：错误对象、发生错误的组件实例以及一个包含错误来源信息的字符串。
+    此钩子可以返回 false 以阻止该错误继续向上传播。
+
+
+3.计算属性、方法和侦听器（computed\methods\watch）
+    计算属性
+    <p>Computed reversed message: "{{ reversedMessage }}"</p>
+    computed: {
+        reversedMessage: function () {
+        return this.message.split('').reverse().join('')}
+    
+    计算属性中的ｓetter\getter
+    computed:{
+        fullname:{ 
+            //计算属性调用 ,计算全名
+            get:function(){
+                return this.firstname + "" + this.lastname
+            }，
+            //当计算属性被设置后调用，例如全名被改变后，通过全名改变data里面的名和姓的值
+            set:function(value){
+                var arr= value.split('　'); //通过空格打散获取的字符串变成数组
+                this.firstname=arr[0];
+                this.lastname=arr[1];
+            }}
+    }
+
+
+4.vue中的样式绑定
+        方法１/意思是绑定一个class类　名字叫ac　是否显示取决于data里面isac的值
+        <div @click='handleClassClick'　:class="{ac:isac}"></div>
+        data:{isac:false}
+        methods:{
+            handleClassClick:function(){
+                this.isac=!this.isac;
+            }
+        }
+        方法２绑定变成数组意思是　绑定一个类显示的内容是ac变量的内容
+        如下通过点击使得ac的值变成了bc　则class=bc类了
+        <div @click='handleClassClick'　:class="[ac]"></div>  
+        data:{ac:""}
+        methods:{
+            if(this.ac===bc){
+                this.ac="";
+            }else{
+                handleClassClick:function(){
+                        this.ac="bc";
+            }}
+            可换成三元表达式
+            this.ac = this.ac === bc ? "": bc ;
+        }
+        方法３style
+
+5.vue中的条件渲染
+        v-if="show" ,v-show="show" 是否显示取决于show的值
+        <div v-if="show">123</div>  
+        <div v-else>111</div>  v-else必须和ｖ-if挨着写不然会报错
+        <input key="user"">　给加入key值　虚拟dom被清空
+
+6.vue中的列表喧嚷
+        <todo-list   v-for="(item,index) in list" :key="index"></todo-list>
+        循环细节key值唯一，一般为id
+        数组里面加内容　不能直接下标加 得使用数组变异方法　例：
+        vm.data.push()　pop(删除最后) shift（删除第一） unshift（增加第一） splic（截取） sort（排序） reverse（取反）
+        <template></template>模板占位符　包裹元素　循环不显示
+
+7.vue中的set方法　set 可以改变对象与列表的值
+        Vue.set(vm.data里的对象或数组，"key","value");
+        vm.$set(vm.data里的对象或数组，"key","value");
+
 
 二组件
 １组件中的细节
+    ａ.is标签使用 例h5里面规范　表格里面tbady里面必须是tr 可我们组件化以后成了row容易出bug
+    可以变成<tr is=row></tr> 及把组件赋<tr>
+
+    b.子组件定义data必须　data:function(){return{}}
+    
+    c.ref（操作DOM）
+    <div ref="hello" @click="handleClick">123</div>
+    methods:{
+        handleClick:function(){
+            this.$ref.hello.interHTML; //通过名为hello的ref获取ＤＯM 的值１２３
+        }
+    }
+    备注：如果是组件上使用ref　获取的是整个组件的引用
+
+
 ２父子组件数据传递
 ３组件参数校验与非props特性
 ４给组件绑定原生事件
