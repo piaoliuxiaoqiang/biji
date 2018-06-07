@@ -113,11 +113,70 @@ console.log();
 
 
 ２父子组件数据传递
+    父组件通过:count绑定向子组件传值，子组件通过props[]接收传递过来的数据
+    子组件通过＠click等时间向上传值，父组件通过＠监听子组件的时间，然后通过方法接收
+    例：子组件模板中
+    <li @click='handleListClick'>　{{content}}　</li>
+     methods:{
+            handleListClick:function(){
+                this.$emit('delete',this.index)
+            },
+        }
+    父组件通过v-on:delete='handListDelete'接收　然后用函数使用
+    子组件不要直接修改父组件传递过来的值（单向数据流）
+
 ３组件参数校验与非props特性
+    非props 及子组件不接收父组件传递过来的值父组件会在html中暴露绑定值，子组件无法使用。
+    props:{
+        content{
+            type:String,
+            required:true,
+            default:"默认值",
+            validator:function(value){
+                return (value.lenght>5);
+        }} 
+    }
+
 ４给组件绑定原生事件
+    给组件绑定一个事件，实际上是监听了子组件的事件，需要通过子组件向上传递数据来触发
+    要想使用组件绑定一个原生事件　需要　@click.native 加上事件修饰符即可
+
 ５非父子组件传值（vuex\bus总线）
+    Vue.prototype.bus=new Vue()  在Vue类上挂上一个bus属性，指向同一个实例
+    Vue.component(child,{
+        data:function(){
+            return selfcontent:this.content //为了单向流原则不改变传递过来的数据
+        },
+        props:{content:String},
+        template:"<div @click=handclick>{{selfcontent}}</div>"
+        methods{
+            handclick:function(){
+                this.bus,$emit('change',this.selfcontent)
+            }
+        }
+        mouted:function(){
+            var this_= this
+            this.bus.$on('chang',function(msg){
+                this_selfcontent=msg
+            })
+        }
+    })
+
 ６vue中使用插槽
+    子组件中有一部分内容是通过父组件ＤＯＭ显示　使用插槽
+    例：父组件中的模板代码
+        <b-content>
+           <div slot="heart"></div>
+           <h1 slot="footer"></h1>
+        </b-content>
+    子组件中的模板代码
+        <div>
+            <slot name=heart>默认值</slot>
+            <slot name=footer></slot>
+        </div>
+
 ７vue中的作用域插槽
+
 ８动态组件与v-once
 
 三vue动画
