@@ -176,12 +176,120 @@ console.log();
         </div>
 
 ７vue中的作用域插槽
+父组件中的模板代码
+<todo-list v-bind:todos="todos">
+    <!-- 将 `slotProps` 定义为插槽作用域的名字 -->
+    <template slot-scope="slotProps">
+        <!-- 为待办项自定义一个模板，-->
+        <!-- 通过 `slotProps` 定制每个待办项。-->
+        <span v-if="slotProps.todo.isComplete">✓</span>
+        {{ slotProps.todo.text }}
+    </template>
+</todo-list>
+    子组件中的模板代码
+    <ul>
+        <li v-for="todo in todos"  v-bind:key="todo.id">
+            <!-- 我们为每个 todo 准备了一个插槽，-->
+            <!-- 将 `todo` 对象作为一个插槽的 prop 传入。-->
+            <slot v-bind:todo="todo">
+                <!-- 回退的内容 -->
+                {{ todo.text }}
+            </slot>
+        </li>
+    </ul>
 
+    如上　父组件用slotProps　接收插槽　绑定时间todo　使用时 slotProps.todo
 ８动态组件与v-once
+　　　例：如有两个组件　child-one child-two
+     <compont :is="type"><component>
+     <button　＠click="butt"></button>
+      var wm= new Vue({
+          el:,
+          data:{type:child-one},
+          methods{
+              butt:function(){
+                  this.type= this.type==='child-one'? 'child-two':'child-one'
+              }
+          }
+      })
+v-once指令被放入内存，在动态组件中不会被重建，提高展示效率
+
 
 三vue动画
 １．css动画（Animate.css）
+    过渡动画原理　首先得被<transition name="faca"></transition>包裹，有name　前为name  没name为ｖ
+    显示原理
+    fade-enter(动画开始第一帧) fada-enter-active（动画时间）  fade-enter-to（第二帧到动画结束）
+    离开原理
+    v-leave (动画结束第一帧)　　v-leave－active（动画时间）　v-leave-to（第二帧到动画结束）
+
+    .v-enter .v-leave-to{opactity:0;}
+    .v-enter-active .v-leave-active{transition:opactity 3s} 进去和离开时间
+    
+    Animate动画　首先引入animate.css 然后必须使用自定义名字　例
+    <transition name="face" enter-active-class="animate swing" leave-active-class="animate swing">
+    这样相当于重新定义了入场和出厂的css类名
+
+    页面第一次加载时　显示动画
+    <transition name="face"
+        appear  //第一次显示的时候引入动画效果
+        enter-active-class="animate swing" 
+        leave-active-class="animate swing"
+        appear-active-class="animate swing">　//引入的第一次动画效果是什么
+    </transition》
+
+
+    Animate是keyframes的动画效果，transition是过度效果　一起使用如下
+    <style>
+         .v-enter .v-leave-to{opactity:0;}
+         .v-enter-active .v-leave-active{transition:opactity 3s} 
+    </style>
+    <transition
+        type="transition" //确定过渡动画时长为准　或者如下
+        ：duration="{enter:1000,leave:1000}" 手动设置入场和出厂的时间
+        ：duration="1000" 设置自定义时间
+        appear 
+        enter-active-class="animate swing　v-enter-active" 
+        leave-active-class="animate swing  v-leave－active"
+        appear-active-class="animate swing">　//引入的第一次动画效果是什么
+    </transition>
+
+
+
 ２．js动画(VeLocity.js)
+    原理　动画钩子
+    @befor-enter(进入前) @enter（进入） 　@after-enter （进入后） 　入场动画钩子
+    @befor-leave 　@leave   @after-leave
+
+     <transition
+       @befor-enter="hand1"
+       @enter="hand2"
+       @after-enter="hand3"
+    </transition>
+        methods:{
+            hand1:function(el){el.style.opacity=0;},
+            hand2:function(el,done){
+            },
+            hand3:function(el)
+        }
+
+    VeLocity 动画库的使用
+
+    <transition
+       @befor-enter="hand1"
+       @enter="hand2"
+       @after-enter="hand3"
+    </transition>
+        
+    methods:{
+        hand1:function(el){el.style.opacity=0;},
+        hand2:function(el,done){
+            Velocity(el,{opacity=1},{duration:1000, complete:done})
+            },
+        hand3:function(el)
+        }
+
+    多个元素和组件过度
 
 四实战案例
 １．环境搭建
