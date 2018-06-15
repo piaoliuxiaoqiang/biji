@@ -290,7 +290,17 @@ v-once指令被放入内存，在动态组件中不会被重建，提高展示�
         }
 
     多个元素和组件过度
-
+    多个元素过度动画
+    <transition mode="in-out"> 先进入后隐藏，out-in先隐藏后进　动画效果
+        <div v-if="show" key="hello">hello</div> 设置key值解决DOM复用问题，否则动画不显示
+        <div v-else key="bye"></div>
+    </transition>
+　　
+    多组件过度可以按照上面进行，也可以按照　动态组件模式（参考动态组件）
+    <transitiong-group></transition-group> 意思为在每个上增加transition
+    
+    vue中的动画封装
+    
 四实战案例
 １．环境搭建
 ２．git使用
