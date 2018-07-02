@@ -1,0 +1,65 @@
+实战案例
+１．环境搭建
+    安装node，npm  找一个仓库码云或github
+   npm install --global vue-cli
+   vue init webpack my-project
+   cd my-project
+   npm install
+   npm run dev  
+
+２．git使用
+    git remote add origin https://github.com/piaoliuxiaoqiang/blog.git  本地https关联
+    git push -u origin master  推送本地分支到远程
+    git push origin master 然后只要本地提交了 就可以直接使用了
+    git remote -v 看远程仓库个数
+    git push origin master -f会强制推送，把与多于本地的commit 都会删除掉
+    我们创建dev分支，然后切换到dev分支
+    git checkout -b dev
+    git checkout命令加上-b参数表示创建并切换，相当于以下两条命令：
+    git branch dev
+　　git checkout dev
+　　git branch　查看当前分支　　git checkout master　切换分支
+　　git branch -d dev　删除分支　git merge dev合并分支
+
+３．准备
+    1.首先修改index.html　标签如下
+    <meta　name="viewport"　content="width=device-width,　initial-scale=1.0, 
+    maximum-scale=1.0,minmum-scale=1.0  user-scalable=no" />
+    width - viewport的宽度 height - viewport的高度
+    initial-scale - 初始的缩放比例
+    minimum-scale - 允许用户缩放到的最小比例
+    maximum-scale - 允许用户缩放到的最大比例
+    user-scalable - 用户是否可以手动缩放
+    
+    2.然后下载reset.css文件　来清空css原始配置，保存到styles文件夹中　并且在main.js里面导入
+    下载border.css文件　解决１像素边框问题，然后在main.js里面导入
+    
+    3.300毫秒点击延迟问题，npm install fastclick --save 然后在main.js中引入
+    import fastClick from 'fastclick'
+    fastClick.attach(document.body)
+
+    4.iconfont网站创建图标
+      或iconmoon网站自己导入svg制作　一般来说DPR(设备像素比)　切图标　为2/或３倍
+
+    5.在<style　lang="stylus" scoped></style>
+      用stylus语法写css　同时保证只在组件中css有用所以用scoped关键字
+      npm install stylus --save
+      npm install stylus-loader --save
+
+    ６　移动端移一般都是rem布局　１rem=html 中font-size = 在reset里面font-size＝50px
+    　　设计师给的是两倍像素　及设计师给的是100px实际为50px＝１rem
+       
+    ７．项目目录结构设计　组件就近维护原则　一般在src下
+        新建commom公共目录（js stylus fonts）
+        新建components在目录下新建　各组件文件夹 
+    
+    8.stylus　css预处理　新建varibless.styl　设置变量$bgClor
+    　然后在需要的组件样式中　引入（在样式中引入样式需要＠）
+    　@ '../../../目录'　(如需缩短引入　找到src目录　@ '~@/目录') 注意波浪线
+    ＠符号代表src目录　及　＠　“～＠/目录” 及在src目录下
+    如需要继续缩短　需要修改webpack门脸规则　及进入webpack.base.conf.js 
+    找到resolve中alias:中填写规则（参考＠门脸）
+
+５．联调
+６．真机测试
+７．上线
