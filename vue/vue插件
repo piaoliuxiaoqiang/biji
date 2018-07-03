@@ -1,4 +1,6 @@
-1.vue route(网址不同，返回给用户不同内容)　配置都在route目录index.js下　
+1.vue route
+    
+    (网址不同，返回给用户不同内容)　配置都在route目录index.js下　
     <router-route to="/list">列表</route-routr>　跳转列表页面
     然后跳转后  <router-view></router-view>显示　内容
 
@@ -9,11 +11,14 @@
 6.递归组件
 7.公用组件
 8.插件
-9.轮播插件
-        １安装 npm install vue-awesome-swiper --save 
+9.轮播插件 swiper
+    
+    １安装 npm install vue-awesome-swiper --save 
         npm install vue-awesome-swiper@2.6.7 --save 安装指定版本
+    2.使用方法（分全局安装与局部安装　详情https://github.com/surmon-china/vue-awesome-swiper）
+    
     <template>
-        <div class="wrapper">　在外围增加一个样式　以方便处理　抖动
+        <div class="wrapper">　在外围增加一个样式撑开轮播，使得图片未加载也显示轮播区域
             <swiper :options="swiperOption" v-if="showSwiper">
             <swiper-slide v-for="item of list" :key="item.id">
                 <img class="swiper-img" :src="item.imgUrl" />
@@ -32,8 +37,8 @@
         data () {
             return {
             swiperOption: {
-                pagination: '.swiper-pagination',
-                loop: true　　　循环轮播
+                pagination: '.swiper-pagination',　//配置项等于分页的　css　class 来家小点
+                loop: true　　　//循环轮播
             }
             }
         },
@@ -46,7 +51,7 @@
     </script>
 
     <style lang="stylus" scoped>
-        .wrapper >>> .swiper-pagination-bullet-active　　>>>是为了突破scoped的限制　把小点颜色变成白色
+        .wrapper >>> .swiper-pagination-bullet-active　　// >>>是为了突破scoped的限制　把小点颜色变成白色
             background: #fff
         .wrapper　增加样式处理轮播图下面的抖动问题
             overflow: hidden
