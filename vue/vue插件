@@ -7,14 +7,73 @@
 2.vuex
 3.stylus
 4.Axios
+    1安装　npm install axios --save
+    2.合并分支　git merge 分支名
+    3.在哪里发送ajax请求
+    　每一个组件都发送ajax请求，请求增多影响性能，所以得父组件发送然后传递给子组件
+    4.axios使用
+    　首先在要使用的组件中引入　import axios from 'axios'
+    然后在mounted周期函数上使用this.getHomeInfo()来调用methods里的函数
+    methods: {
+        getHomeInfo () {
+            axios.get('/api/index.json?city=' + this.city)
+                .then(this.getHomeInfoSucc)
+        },
+        getHomeInfoSucc (res) {
+            res = res.data
+            if (res.ret && res.data) {
+                const data = res.data　　　　　　　　　　　　　//接收数据保存到本组件data 中　然后传给子组件
+                this.swiperList = data.swiperList
+                this.iconList = data.iconList
+                this.recommendList = data.recommendList
+                this.weekendList = data.weekendList
+            }
+        }
+        },
+    mounted () {
+        this.lastCity = this.city
+        this.getHomeInfo()
+    },
+    5．mock数据模拟
+    例如ajax请求的是'static/mock/index.json'
+    通过config在index.js中找到module.export在加入
+     proxyTable: {
+      "/api": {
+        target: "http://localhost:8080",
+        pathRewrite:{
+          "^/api":"/static/mock"
+        }
+      }
+    ６.json格式
+    {
+        "ret": true,　//代表服务器正确响应了请求
+        "data":{　　　//返回的数据在data里　json数据在最后一个数据没有逗号，否则出错
+            "hotCities": [{
+                "id": 1,
+                "spell": "beijing",
+                "name": "北京"
+            }, {
+                "id": 3,
+                "spell": "shanghai",
+                "name": "上海"
+            }
+        ｝
+    ｝
+    ７部分解决问题
+    传给子幻灯组件后，幻灯显示最后一张，因为初始时是空数组，只需在幻灯组件循环中　加入v-if="list.length"
+    及当传递过来的list数据存在时采显示，就解决了
+    
 5.异步组件
 6.递归组件
 7.公用组件
 8.插件
+
+
+
 9.轮播插件 swiper
     
     １安装 npm install vue-awesome-swiper --save 
-        npm install vue-awesome-swiper@2.6.7 --save 安装指定版本
+          npm install vue-awesome-swiper@2.6.7 --save 安装指定版本
     2.使用方法（分全局安装与局部安装　详情https://github.com/surmon-china/vue-awesome-swiper）
     
     <template>
@@ -36,10 +95,10 @@
         },
         data () {
             return {
-            swiperOption: {
-                pagination: '.swiper-pagination',　//配置项等于分页的　css　class 来家小点
-                loop: true　　　//循环轮播
-            }
+                swiperOption: {
+                    pagination: '.swiper-pagination',　//配置项等于分页的　css　class 来家小点
+                    loop: true　　　//循环轮播
+                }
             }
         },
         computed: {

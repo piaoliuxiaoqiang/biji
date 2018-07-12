@@ -11,11 +11,12 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/project',
     proxyTable: {
-      '/api': {
-        target: 'http://localhost:8080',
-        PathRewrite:{
-          '^/api':'/static/mock'}
-      },
+      "/api": {
+        target: "http://localhost:8080",
+        pathRewrite:{
+          "^/api":"/static/mock"
+        }
+      }
     },
 
     // Various Dev Server settings
