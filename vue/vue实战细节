@@ -59,8 +59,8 @@
     ＠符号代表src目录　及　＠　“～＠/目录” 及在src目录下
     如需要继续缩短　需要修改webpack门脸规则　及进入webpack.base.conf.js 
     找到resolve中alias:中填写规则（参考＠门脸）
-json格式
 
+４．keep-live性能优化
 ５．联调
 ６．真机测试
 ７．上线

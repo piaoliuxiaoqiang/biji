@@ -1,10 +1,111 @@
 1.vue route
     
-    (网址不同，返回给用户不同内容)　配置都在route目录index.js下　
-    <router-route to="/list">列表</route-routr>　跳转列表页面
-    然后跳转后  <router-view></router-view>显示　内容
+    1(网址不同，返回给用户不同内容)　配置都在route目录index.js下　
+    2.使用方法　在要使用的组件中　
+    <router-link to="/list">
+        要包裹的跳转的区域
+    </route-link>
+    及点击调到list路径配置的组件中
+    或者编程跳转　this.$route.push('/') 以为跳转到首页
+    
+    ３．然后跳转后  <router-view></router-view>显示　内容
 
-2.vuex
+
+
+2.vuex　如果所有数据放置到公共空间，某一个组件改变的数据，其他组件通过方法可感应本质上vuex是一个公共的数据仓库，使用vuex也就是新建仓库，与使用仓库的过程
+    １安装　npm install vuex --save
+    2.新建仓库　在src中新建store目录新建index.js来达到新建仓库的目的
+    ３．在index.js中使用仓库规则如下
+    import Vue from 'vue'　  　　　　　　　　　//引用vue
+    import Vuex from 'vuex'　　　　　　　　　　//引入vuex
+    Vue.use(Vuex)　　　　　　　　　　　　　　　　//vue中使用插件vuex
+    export default new Vuex.Store({  　　　　//新建仓库
+        let defaultCity = '上海'
+        try {
+        if (localStorage.city) {
+            defaultCity = localStorage.city
+        }
+        } catch (e) {}
+        state：｛
+            //city:localStorage.city || "北京"  //所有数据都存放在此处,优先本地存储
+            //要使用localStorage为了防止用户本地关闭存储或者无痕浏览抛出异常需要　try
+            city: defaultCity
+        ｝
+        actions:{
+            //组件要想批量改变数据则通过dispatch方法，传递数据到actions中 如下
+            //此actions中的一个名字叫 changeCity　可自己定义　ctx是必须的，city是传递过来的数据名
+            changeCity(ctx,city){
+                ctx.commit('change',city)  //通过commit方法调用mutations中change方法
+            }    
+        }
+
+        mutations：｛
+            //change（state,city）｛
+              //  state.city=city
+               // localStorage.city=city    
+            //｝
+             change (state, city) {     //防止localStoreage被禁用bug
+                state.city = city
+                try {
+                localStorage.city = city
+                } catch (e) {}
+            }
+        ｝
+    })
+
+    　　组件a中使用vuex中的数据　前提是store已经引入并注册
+        {{this.$store.state.city}}
+    　　组件ａ中改变vuex中的数据　组件a通过绑定事件　如＠click=handCityclick
+        则在a组件的methods中
+        methods:{
+            handCityclick(city){              //传入的数据
+                //然后组件通过dispatch方法把要传递的数据传递给仓库中的actions
+                //仓库中的actions再通过函数commit调用mutations中的摸个函数，来修改state中的值
+                $this.$store.dispatch('changeCity',city)
+            }
+        }
+    
+    总结：仓库store中有三个数据　state（放数据）、actions（放方法，并调用mutations中方法）、
+        mutations（改变数据）　
+        组件通过　this.$store.dispatch(actions中方法，传递的数据)　把要改变的数据传给actions
+
+        备注：非异步，非批量组件可以直接调用mutations　及
+        this.$store.commit(‘mutations中的方法名’，传递的数据)
+
+
+    ４简化store仓库 以及映射来减少代码
+        １简化　随着state等变大　需要拆分代码
+        import Vue from 'vue'
+        import Vuex from 'vuex'
+        import state from './state'
+        import mutations from './mutations'
+
+        Vue.use(Vuex)
+
+        export default new Vuex.Store({
+        state,
+        mutations
+        })
+        ２映射
+         {{this.$store.state.city}}　调用代码较为长　可以
+         import { mapState, mapMutations } from 'vuex'
+         然后在组件计算属性和函数中映射
+           computed: {
+                ...mapState({
+                currentCity: 'city'
+                })
+            },
+            methods: {
+                handleCityClick (city) {
+                this.changeCity(city)
+                this.$router.push('/')
+                },
+                ...mapMutations(['changeCity'])
+            },
+
+            映射后 {{this.$store.state.city}}　可写成{{this.currentCity}}
+             函数中原来 this.$store.commit（‘changeCity’,city）　变成　this.changeCity(city)
+
 3.stylus
 4.Axios
     1安装　npm install axios --save
@@ -20,8 +121,8 @@
                 .then(this.getHomeInfoSucc)
         },
         getHomeInfoSucc (res) {
-            res = res.data
-            if (res.ret && res.data) {
+            res = res.data //json里面的数据名叫data
+            if (res.ret && res.data) {              //json里面第一个数据是　“ret”:true 代表成果获取数据
                 const data = res.data　　　　　　　　　　　　　//接收数据保存到本组件data 中　然后传给子组件
                 this.swiperList = data.swiperList
                 this.iconList = data.iconList
@@ -67,9 +168,6 @@
 6.递归组件
 7.公用组件
 8.插件
-
-
-
 9.轮播插件 swiper
     
     １安装 npm install vue-awesome-swiper --save 
@@ -121,3 +219,26 @@
             .swiper-img　
             width: 100%
     </style>
+10 better-scroll使用　（解决移动端（现已支持 PC 端）各种滚动场景需求的插件）
+   
+   １安装　npm install better-scroll --save 
+   better-scroll 最常见的应用场景是列表滚动，我们来看一下它的 html 结构
+    <div class="wrapper"　ref='warpper'>   //better-scroll 是作用在外层 wrapper 容器上的
+        <ul class="content"> //滚动的部分是 content 元素 只滚动warpper里第一个元素
+            <li>...</li>
+            <li>...</li>
+            ...
+        </ul>
+        <!-- 这里可以放一些其它的 DOM，但不会影响滚动 -->
+    </div>
+    
+    ２在vue中使用
+    import Bscroll from 'better-scroll' //引入
+    export default {
+        mounted () {
+            //在生命周期函数中实例　并且通过refs调用要要使用的dom　warpper
+             this.scroll = new Bscroll(this.$refs.wrapper)　
+    },
+    
+
+
